@@ -7,6 +7,7 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -18,9 +19,12 @@ class UserTest {
 	private EntityManager em;
 	User user;
 
+	@BeforeAll
+	public void setUpBeforeAll() throws Exception {
+		emf = Persistence.createEntityManagerFactory("todoApp");
+	}
 	@BeforeEach
 	public void setUp() throws Exception {
-		emf = Persistence.createEntityManagerFactory("todoApp");
 		em = emf.createEntityManager();
 		user = em.find(User.class, 1);
 	}

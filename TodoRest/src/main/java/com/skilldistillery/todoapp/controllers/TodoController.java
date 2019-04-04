@@ -21,7 +21,7 @@ import com.skilldistillery.todoapp.services.TodoService;
 
 @RestController
 @RequestMapping("api")
-@CrossOrigin({ "*", "http://localhost:4200" })
+@CrossOrigin({ "*", "http://localhost:4202" })
 public class TodoController {
 
 	@Autowired

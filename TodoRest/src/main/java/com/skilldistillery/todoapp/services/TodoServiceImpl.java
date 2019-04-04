@@ -24,33 +24,30 @@ public class TodoServiceImpl implements TodoService {
 	
 	@Override
 	public Set<Todo> index(String username) {
-		Set<Todo> todo = new HashSet<Todo>(repoTodo.findAll());
-		return todo;
+		Set<Todo> todos= null;
+		User u = repoUser.findByUsername(username);
+		todos = new HashSet<Todo>(repoTodo.findAll());
+		return todos;
 	}
 
-	@Override
-	public Todo show(String username, Integer tid) {
-		List<User> users = repoUser.findAll();
-		User newuser = null;
-		for (User user : users) {
-			if(user.getUsername().equals(username) ) {
-				newuser = user;
-			}
-		}
-		if( newuser != null) {
-			for (Todo todo : newuser.getTodos()) {
-				if(todo.getId() == tid ) {
-					return todo;
-				}
-			}
-		}
+    @Override
+    public Todo show(String username, Integer tid) {
+        Todo t = null;
+        Optional<Todo> opt = repoTodo.findById(tid);
+        if (opt.isPresent()) {
+            if (opt.get().getUser().getUsername().equals(username)) {
+                t = opt.get();
+            }
+        }
+        return t;
+    }
+	
 
-		return null;
-	}
 
 	@Override
 	public Todo create(String username, Todo todo) {
-		if(todo.getUser() == null) {
+		User u = repoUser.findByUsername(username);
+		  if (u != null) {
 			todo.setUser(new User());
 			todo.getUser().setUsername(username);
 			todo.getUser().setId(1);
@@ -64,25 +61,29 @@ public class TodoServiceImpl implements TodoService {
 	       Optional<Todo> opt = repoTodo.findById(tid);
 	        if (opt.isPresent()) {
 	        	Todo managed = opt.get();
-	            managed.setTask(todo.getTask());
-	            managed.setDescription(todo.getDescription());
-	            managed.setCompleted(todo.getCompleted());
-	            managed.setDueDate(todo.getDueDate());
-	            managed.setCompleteDate(todo.getCompleteDate());
-	            repoTodo.saveAndFlush(managed);
-	            return managed;
+	            if (managed.getUser().getUsername().equals(username)) {
+	                managed.setTask(todo.getTask());
+	                managed.setDescription(todo.getDescription());
+	                managed.setCompleted(todo.getCompleted());
+	                managed.setDueDate(todo.getDueDate());
+	                managed.setCompleteDate(todo.getCompleteDate());
+	                repoTodo.saveAndFlush(managed);
+	                return managed;
+	            }
 	        }
 	        return null;
 	}
 
-	@Override
-	public boolean destroy(String username, int tid) {
-		repoTodo.deleteById(tid);
-		if (repoTodo.existsById(tid)) {
-			return false;
-		} else {
-			return true;
-		}
-	}
+    @Override
+    public boolean destroy(String username, int tid) {
+        Optional<Todo> opt = repoTodo.findById(tid);
+        if (opt.isPresent()) {
+            if (opt.get().getUser().getUsername().equals(username)) {
+                repoTodo.deleteById(tid);
+                return true;
+            }
+        }
+        return false;
+    }
 
 }
