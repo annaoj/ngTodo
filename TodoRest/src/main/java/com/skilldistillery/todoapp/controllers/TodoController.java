@@ -1,5 +1,6 @@
 package com.skilldistillery.todoapp.controllers;
 
+import java.security.Principal;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.skilldistillery.todoapp.entities.Todo;
@@ -27,19 +29,22 @@ public class TodoController {
 	@Autowired
 	private TodoService service;
 
-	private String username ="shaun";
+//	private String username ="shaun";
+	
 	
 	//  GET todos
 	@GetMapping("todos")
-	public Set<Todo> index(HttpServletRequest req, HttpServletResponse res) {
-		return service.index(username);
+	public Set<Todo> index(HttpServletRequest req, HttpServletResponse res,
+			Principal principal) {
+		return service.index(principal.getName());
 	}
 
 	@GetMapping("todos/{tid}")
 	public Todo show(HttpServletRequest req, HttpServletResponse res,
-			@PathVariable("tid") Integer tid) {
+			@PathVariable("tid") Integer tid,
+			Principal principal) {
 		try {
-			Todo todo = service.show(username,tid);
+			Todo todo = service.show(principal.getName(),tid);
 			if (todo == null) {
 				res.setStatus(404);
 			} else {
@@ -60,9 +65,10 @@ public class TodoController {
 
 	@PostMapping("todos")
 	public Todo create(HttpServletRequest req, HttpServletResponse res, 
-			@RequestBody Todo todo) {
+			@RequestBody Todo todo,
+			Principal principal) {
 		try {
-			service.create(username,todo);
+			service.create(principal.getName(),todo);
 			StringBuffer url = req.getRequestURL();
 			System.out.println("PostController" + url.toString());
 			url.append("/");
@@ -82,8 +88,9 @@ public class TodoController {
 			HttpServletRequest req, 
 			HttpServletResponse res,
 			@PathVariable("tid") Integer tid,
-			@RequestBody Todo todo) {
-		todo = service.update(username,tid, todo);
+			@RequestBody Todo todo,
+			Principal principal) {
+		todo = service.update(principal.getName(),tid, todo);
 	        if (todo == null) {
 	            res.setStatus(404);
 	        }
@@ -95,13 +102,14 @@ public class TodoController {
 	public Boolean destroy(
 			HttpServletRequest req,
 			HttpServletResponse res, 
-			@PathVariable("tid") Integer tid) {
+			@PathVariable("tid") Integer tid,
+			Principal principal) {
 		try {
-			if (service.show(username, tid) == null) {
+			if (service.show(principal.getName(), tid) == null) {
 				res.setStatus(404);
 				return false;
 			} else {
-				service.destroy(username, tid);
+				service.destroy(principal.getName(), tid);
 				res.setStatus(204);
 				return true;
 			}

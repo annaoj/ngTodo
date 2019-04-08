@@ -26,7 +26,7 @@ public class TodoServiceImpl implements TodoService {
 	public Set<Todo> index(String username) {
 		Set<Todo> todos= null;
 		User u = repoUser.findByUsername(username);
-		todos = new HashSet<Todo>(repoTodo.findAll());
+		todos = new HashSet<Todo>(repoTodo.findByUser_Username(username));
 		return todos;
 	}
 
@@ -48,9 +48,9 @@ public class TodoServiceImpl implements TodoService {
 	public Todo create(String username, Todo todo) {
 		User u = repoUser.findByUsername(username);
 		  if (u != null) {
-			todo.setUser(new User());
-			todo.getUser().setUsername(username);
-			todo.getUser().setId(1);
+			todo.setUser(u);
+			todo.getUser().setUsername(u.getUsername());
+			todo.getUser().setId(u.getId());
 		}
 
 		return repoTodo.saveAndFlush(todo);
